@@ -1,7 +1,7 @@
 
 
 module Honeydocx
-  class Document
+  module Document
     def create(type, opts={})
       if type == :pdf
         return PDF.new(opts)
