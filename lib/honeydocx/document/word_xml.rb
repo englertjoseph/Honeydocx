@@ -24,23 +24,23 @@ module Honeydocx
       if (new_document?)
         # If using template throw away old header relationships and replace
         @header_rels_xml = template_header_rels
-        @header_rels_xml.gsub!("TOKEN_URL", url + token)
       elsif(has_header?)
         # Add resource && add to header1.xml
-        if (has_header_rels?)
-          @header_rels_xml = zip.read("word/_rels/header1.xml.rels")
-        else
-          @header_rels_xml = template_header_rels
-          @header_rels_xml.gsub!("TOKEN_URL", url + token)
-          # Insert hook into word/header1.xml
-          partial = Nokogiri::XML(File.open(File.expand_path("../word/header1.xml.partial" , __FILE__)))
-          header_xml =  Nokogiri::XML(zip.read("word/header1.xml"))
-          header_xml.at_xpath(".//w:p") << partial.children[0].children
-          @header_xml = header_xml.to_xml
+        if (!has_header_rels?)
+          create_header_rels
         end
+        @header_rels_xml = zip.read("word/_rels/header1.xml.rels")
+        @header_rels_xml = template_header_rels
+
+        # Insert hook into word/header1.xml
+        partial = Nokogiri::XML(File.open(File.expand_path("../word/header1.xml.partial" , __FILE__)))
+        header_xml =  Nokogiri::XML(zip.read("word/header1.xml"))
+        header_xml.at_xpath(".//w:p") << partial.children[0].children
+        @header_xml = header_xml.to_xml
       else
         # Add headers to the document
       end
+      @header_rels_xml.gsub!("TOKEN_URL", url + token)
     end
 
     def save
@@ -71,6 +71,10 @@ module Honeydocx
 
     def open_docx
       @zip = Zip::File.open(path)
+    end
+
+    def create_header_rels
+      zip.add('word/_rels/header1.xml.rels', WordXML.honey_header_path)
     end
 
     def template_header_rels

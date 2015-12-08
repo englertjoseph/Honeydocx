@@ -26,21 +26,26 @@ describe Honeydocx::WordXML do
     end
 
     context 'Using supplied document with header' do
-      before(:each) do
-        @path = File.expand_path('../../fixtures/header_no_rels.docx', __FILE__)
-        @opts = { path: @path, url: @url, token: @token }
-      end
-
-      it 'should set the path of the document' do
-        wordXML = dummy_document.create(:docx, @opts)
-        expect(wordXML.path).to eq(@opts[:path])
-      end
-
       context 'with no header rels' do
-        it 'should insert a token in the header rels' do
+        before(:each) do
+          @path = File.expand_path('../../fixtures/header_no_rels.docx', __FILE__)
+          @opts = { path: @path, url: @url, token: @token }
+        end
+
+        it 'should set the path of the document' do
+          wordXML = dummy_document.create(:docx, @opts)
+          expect(wordXML.path).to eq(@opts[:path])
+        end
+
+        it 'should create header rels with token' do
           wordXML = dummy_document.create(:docx, @opts)
           expected_xml = File.open(File.expand_path('../../fixtures/header1.xml.rels', __FILE__)).read
           expect(wordXML.header_rels_xml.gsub(/\s+/, "")).to eq (expected_xml.gsub(/\s+/, ""))
+        end
+
+        it 'should create a header rels file' do
+          wordXML = dummy_document.create(:docx, @opts)
+          expect(wordXML.send(:has_header_rels?)).to eq(true)
         end
 
         it 'should reference token in word/header1.xml' do
@@ -51,6 +56,19 @@ describe Honeydocx::WordXML do
       end
 
       context 'with header rels' do
+        before(:each) do
+          @path = File.expand_path('../../fixtures/header_with_rels.docx', __FILE__)
+          @opts = { path: @path, url: @url, token: @token }
+        end
+
+        it 'should set the path of the document' do
+          wordXML = dummy_document.create(:docx, @opts)
+          expect(wordXML.path).to eq(@opts[:path])
+        end
+
+        it 'should insert token in the header rels' do
+
+        end
 
       end
     end
