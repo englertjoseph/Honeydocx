@@ -21,7 +21,7 @@ describe Honeydocx::WordXML do
       it 'should insert a token in the header rels' do
         wordXML = dummy_document.create(:docx, @opts)
         expected_xml = File.open(File.expand_path('../../fixtures/header1.xml.rels', __FILE__)).read
-        expect(wordXML.header_rels_xml.gsub(/\s+/, "")).to eq (expected_xml.gsub(/\s+/, ""))
+        expect(clean_xml(wordXML.header_rels_xml)).to eq (clean_xml(expected_xml))
       end
     end
 
@@ -40,7 +40,7 @@ describe Honeydocx::WordXML do
         it 'should create header rels with token' do
           wordXML = dummy_document.create(:docx, @opts)
           expected_xml = File.open(File.expand_path('../../fixtures/header1.xml.rels', __FILE__)).read
-          expect(wordXML.header_rels_xml.gsub(/\s+/, "")).to eq (expected_xml.gsub(/\s+/, ""))
+          expect(clean_xml(wordXML.header_rels_xml)).to eq (clean_xml(expected_xml))
         end
 
         it 'should create a header rels file' do
@@ -50,8 +50,7 @@ describe Honeydocx::WordXML do
 
         it 'should reference token in word/header1.xml' do
           wordXML = dummy_document.create(:docx, @opts)
-          expected_xml = File.open(File.expand_path('../../fixtures/header1.xml', __FILE__)).read
-          expect(wordXML.header_xml.gsub(/\s+/, "")).to eq (expected_xml.gsub(/\s+/, ""))
+          expect(clean_xml(wordXML.header_xml)).to eq (clean_xml(expected_header))
         end
       end
 
@@ -66,10 +65,11 @@ describe Honeydocx::WordXML do
           expect(wordXML.path).to eq(@opts[:path])
         end
 
-        it 'should insert token in the header rels' do
-
+        it 'should insert a token in the header rels' do
+          wordXML = dummy_document.create(:docx, @opts)
+          expected_xml = File.open(File.expand_path('../../fixtures/header1.xml.rels', __FILE__)).read
+          expect(clean_xml(wordXML.header_rels_xml)).to eq (clean_xml(expected_xml))
         end
-
       end
     end
 
