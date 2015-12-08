@@ -28,6 +28,7 @@ module Honeydocx
         # Add resource && add to header1.xml
         if (!has_header_rels?)
           create_header_rels
+        else
         end
         @header_rels_xml = zip.read("word/_rels/header1.xml.rels")
         @header_rels_xml = template_header_rels
@@ -35,6 +36,11 @@ module Honeydocx
         # Insert hook into word/header1.xml
         partial = Nokogiri::XML(File.open(File.expand_path("../word/header1.xml.partial" , __FILE__)))
         header_xml =  Nokogiri::XML(zip.read("word/header1.xml"))
+        # Add header style if none exist
+        if (header_xml.at_xpath(".//w:pPr").nil?)
+          binding.pry
+          partial << Nokogiri::XML(File.open(File.expand_path("../word/pPr.xml", __FILE__)))
+        end
         header_xml.at_xpath(".//w:p") << partial.children[0].children
         @header_xml = header_xml.to_xml
       else

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <w:partial>
-  <w:pPr>
-    <w:pStyle w:val="Header"/>
-  </w:pPr>
   <w:r>
     <w:pict>
       <v:shapetype id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
