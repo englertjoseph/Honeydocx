@@ -29,20 +29,13 @@ module Honeydocx
         if (!has_header_rels?)
           create_header_rels
         else
+          # Get last relationship number (rid)
+          # Add relationship with last rid + 1
+          # Edit partial to include rid
         end
         @header_rels_xml = zip.read("word/_rels/header1.xml.rels")
         @header_rels_xml = template_header_rels
-
-        # Insert hook into word/header1.xml
-        partial = Nokogiri::XML(File.open(File.expand_path("../word/header1.xml.partial" , __FILE__)))
-        header_xml =  Nokogiri::XML(zip.read("word/header1.xml"))
-        # Add header style if none exist
-        if (header_xml.at_xpath(".//w:pPr").nil?)
-          binding.pry
-          partial << Nokogiri::XML(File.open(File.expand_path("../word/pPr.xml", __FILE__)))
-        end
-        header_xml.at_xpath(".//w:p") << partial.children[0].children
-        @header_xml = header_xml.to_xml
+        insert_partial
       else
         # Add headers to the document
       end
@@ -85,6 +78,19 @@ module Honeydocx
 
     def template_header_rels
       File.open(WordXML.honey_header_path).read
+    end
+
+    def insert_partial
+      # Insert hook into word/header1.xml
+      partial = Nokogiri::XML(File.open(File.expand_path("../word/header1.xml.partial" , __FILE__)))
+      header_xml =  Nokogiri::XML(zip.read("word/header1.xml"))
+      # Add header style if none exist
+      if (header_xml.at_xpath(".//w:pPr").nil?)
+        binding.pry
+        partial << Nokogiri::XML(File.open(File.expand_path("../word/pPr.xml", __FILE__)))
+      end
+      header_xml.at_xpath(".//w:p") << partial.children[0].children
+      @header_xml = header_xml.to_xml
     end
 
     def new_document?
