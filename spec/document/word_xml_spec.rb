@@ -84,6 +84,16 @@ describe Honeydocx::WordXML do
 
     context 'Using supplied document with no header' do
       before(:each) do
+        @path = File.expand_path('../../fixtures/blank_no_header.docx', __FILE__)
+        @opts = { path: @path, url: @url, token: @token }
+      end
+
+      it 'should set the path of the document' do
+        wordXML = dummy_document.create(:docx, @opts)
+        expect(wordXML.path).to eq(@opts[:path])
+      end
+
+      it '' do
 
       end
     end
