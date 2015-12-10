@@ -73,6 +73,11 @@ describe Honeydocx::WordXML do
 
         it 'should retain the old rels' do
           wordXML = dummy_document.create(:docx, @opts)
+          old_rels = Nokogiri::XML(get_header_rels(@path))
+          old_rels.remove_namespaces! # XML namespaces aren't correct and no searchable without removing
+          old_rels.root.xpath(".//Relationship").each do |relation|
+            expect(wordXML.header_rels_xml).to include(relation)
+          end
         end
       end
     end
