@@ -48,7 +48,7 @@ describe Honeydocx::WordXML do
           expect(wordXML.send(:has_header_rels?)).to eq(true)
         end
 
-        it 'should reference token in word/header1.xml' do
+        it 'should reference token in word/header1.xml', focus: true do
           wordXML = dummy_document.create(:docx, @opts)
           expect(clean_xml(wordXML.header_xml)).to eq (clean_xml(expected_header))
         end
@@ -67,8 +67,12 @@ describe Honeydocx::WordXML do
 
         it 'should insert a token in the header rels' do
           wordXML = dummy_document.create(:docx, @opts)
-          expected_xml = File.open(File.expand_path('../../fixtures/header1.xml.rels', __FILE__)).read
+          expected_xml = File.open(File.expand_path('../../fixtures/header1_with_rels.xml.rels', __FILE__)).read
           expect(clean_xml(wordXML.header_rels_xml)).to eq (clean_xml(expected_xml))
+        end
+
+        it 'should retain the old rels' do
+          wordXML = dummy_document.create(:docx, @opts)
         end
       end
     end

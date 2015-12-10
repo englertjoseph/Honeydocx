@@ -5,9 +5,13 @@ def get_header(document)
   header = open_xml('word/header1.xml', document)
 end
 
+def get_header_rels(document)
+  rels = open_xml('word/_rels/header1.xml.rels', document)
+end
+
 # Remove spaces and rsids from the header for comparisons.
 def clean_xml(header)
-  header.gsub(/\s+|w:rsid.*?"[^\"]*"|standalone.*"/, "")
+  header.gsub(/\s+|w:rsid.*?"[^\"]*"|standalone.*\"/, "")
 end
 
 def expected_header
