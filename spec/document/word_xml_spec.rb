@@ -96,7 +96,7 @@ describe Honeydocx::WordXML do
 
       it 'should register header in [CONTENT_TYPES].xml' do
         header = "<Override PartName=\"/word/header1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml\"/>"
-        expect(open_xml('[CONTENT_TYPES].xml', @save_path)).to include(header)
+        expect(open_xml('[Content_Types].xml', @save_path)).to include(header)
       end
     end
 

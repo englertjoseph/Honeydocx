@@ -8,7 +8,7 @@ module Honeydocx
     @@HONEY_RELS_HEADER_PATH = File.expand_path("../word/header1.xml.rels", __FILE__)
 
     attr_reader :path, :zip, :header, :url, :save_path, :token
-    attr_accessor :header_rels_xml, :header_xml, :files_to_add
+    attr_accessor :header_rels_xml, :header_xml, :files_to_add, :content_types
 
     def initialize(opts={})
       @path = opts.fetch(:path, WordXML.blank_path)
@@ -60,6 +60,14 @@ module Honeydocx
         files_to_add['word/header1.xml'] = @header_xml
         @header_rels_xml = template_header_rels
         # Add entry to [CONTENT_TYPES].xml
+        content_types_patch_file = File.open(File.expand_path('../word/[Content_Types].xml.patch', __FILE__)).read
+        content_types_patch = Nokogiri::XML(content_types_patch_file)
+        @content_types = Nokogiri::XML(zip.read('[Content_Types].xml'))
+        content_types_patch.root.children.each { |child| @content_types.root.add_child(child) }
+        # Hack remove the default namespace from the newly added nodes
+        @content_types.root.children.each { |child| child.namespace = nil }
+        binding.pry
+        @content_types = @content_types.to_xml
       end
       @header_rels_xml.gsub!("TOKEN_URL", url + token)
     end
@@ -70,8 +78,10 @@ module Honeydocx
           out.put_next_entry(entry.name)
           if entry.name == "word/_rels/header1.xml.rels"
             out.write(header_rels_xml)
-          elsif (has_header? && entry.name == "word/header1.xml")
+          elsif (entry.name == "word/header1.xml")
             out.write(header_xml)
+          elsif (entry.name == "[Content_Types].xml")
+            out.write(content_types)
           elsif (entry.file?)
             out.write(zip.read(entry.name))
           end
