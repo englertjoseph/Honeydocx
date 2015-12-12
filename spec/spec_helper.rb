@@ -19,7 +19,10 @@ def expected_header
     '../fixtures/header1.xml', __FILE__)).read
 end
 
-private
+def expected_header_rels
+  header_rels = File.open(File.expand_path(
+  '../fixtures/header1.xml.rels', __FILE__)).read
+end
 
 def open_xml(filename, path)
   Zip::File.open(path).read(filename)

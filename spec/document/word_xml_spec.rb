@@ -6,6 +6,7 @@ describe Honeydocx::WordXML do
     before(:each) do
       @url = "http://localhost/"
       @token = "dog.jpg"
+      @save_path = "#{Dir.pwd}/tmp/#{@token}.docx" #Dirty fix allow a doc to be created with a save path
     end
 
     context 'using template document' do
@@ -42,7 +43,8 @@ describe Honeydocx::WordXML do
         end
 
         it 'should create a header rels file' do
-          expect(@wordXML.send(:has_header_rels?)).to eq(true)
+          header_rels = get_header_rels(@save_path)
+          expect(clean_xml(header_rels)).to eq(clean_xml(expected_header_rels))
         end
 
         it 'should reference token in word/header1.xml', focus: true do
@@ -87,8 +89,14 @@ describe Honeydocx::WordXML do
         expect(@wordXML.path).to eq(@opts[:path])
       end
 
-      it '' do
+      it 'should create a header1.xml file' do
+        header = get_header(@save_path)
+        expect(clean_xml(header)).to eq(clean_xml(expected_header))
+      end
 
+      it 'should register header in [CONTENT_TYPES].xml' do
+        header = "<Override PartName=\"/word/header1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml\"/>"
+        expect(open_xml('[CONTENT_TYPES].xml', @save_path)).to include(header)
       end
     end
 

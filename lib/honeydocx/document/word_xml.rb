@@ -8,13 +8,14 @@ module Honeydocx
     @@HONEY_RELS_HEADER_PATH = File.expand_path("../word/header1.xml.rels", __FILE__)
 
     attr_reader :path, :zip, :header, :url, :save_path, :token
-    attr_accessor :header_rels_xml, :header_xml
+    attr_accessor :header_rels_xml, :header_xml, :files_to_add
 
     def initialize(opts={})
       @path = opts.fetch(:path, WordXML.blank_path)
       @url = opts.fetch(:url)
       @token = opts.fetch(:token)
       @save_path = "#{Dir.pwd}/tmp/#{token}.docx"
+      @files_to_add = {}
       open_docx
       add_honey
       save
@@ -29,6 +30,7 @@ module Honeydocx
         if (!has_header_rels?)
           #create_header_rels
           @header_rels_xml = template_header_rels
+          files_to_add['word/_rels/header1.xml.rels'] = @header_rels_xml
           insert_partial
         else
           # Get last relationship number (rid)
@@ -53,6 +55,11 @@ module Honeydocx
         end
       else
         # Add headers to the document
+        # Create header
+        @header_xml = File.open(File.expand_path('../word/header1.xml', __FILE__)).read
+        files_to_add['word/header1.xml'] = @header_xml
+        @header_rels_xml = template_header_rels
+        # Add entry to [CONTENT_TYPES].xml
       end
       @header_rels_xml.gsub!("TOKEN_URL", url + token)
     end
@@ -71,10 +78,12 @@ module Honeydocx
         end
       end
       zip.close
-      if (!has_header_rels?)
-        Zip::File.open(save_path, Zip::File::CREATE) do |zipfile|
-          zipfile.get_output_stream('word/_rels/header1.xml.rels') do |f|
-            f.puts(@header_rels_xml)
+      files_to_add.each do |filename, data|
+        if (!has_file?(filename))
+          Zip::File.open(save_path, Zip::File::CREATE) do |zipfile|
+            zipfile.get_output_stream(filename) do |f|
+              f.puts(data)
+            end
           end
         end
       end
@@ -92,11 +101,6 @@ module Honeydocx
 
     def open_docx
       @zip = Zip::File.open(path)
-    end
-
-    def create_header_rels
-      # This modifies the file in place.. need to change
-      zip.add('word/_rels/header1.xml.rels', WordXML.honey_header_path)
     end
 
     def template_header_rels
@@ -121,12 +125,16 @@ module Honeydocx
       path == WordXML.blank_path
     end
 
+    def has_file?(filename)
+      zip.entries.any? { |entry| entry.name == filename }
+    end
+
     def has_header?
       zip.entries.any? { |entry| entry.name == "word/header1.xml" }
     end
 
     def has_header_rels?
-      zip.entries.any? { |entry| entry.name == "word/_rels/header1.xml.rels" } || !!header_rels_xml
+      zip.entries.any? { |entry| entry.name == "word/_rels/header1.xml.rels" }
     end
   end
 end
