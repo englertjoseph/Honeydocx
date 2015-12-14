@@ -8,7 +8,7 @@ module Honeydocx
     @@HONEY_RELS_HEADER_PATH = File.expand_path("../word/header1.xml.rels", __FILE__)
 
     attr_reader :path, :zip, :header, :url, :save_path, :token
-    attr_accessor :header_rels_xml, :header_xml, :files_to_add, :content_types
+    attr_accessor :header_rels_xml, :header_xml, :files_to_add, :content_types, :doc_rels, :doc
 
     def initialize(opts={})
       @path = opts.fetch(:path, WordXML.blank_path)
@@ -33,24 +33,7 @@ module Honeydocx
           files_to_add['word/_rels/header1.xml.rels'] = @header_rels_xml
           insert_partial
         else
-          # Get last relationship number (rid)
-          # Add relationship with last rid + 1
-          # Edit partial to include rid
-          @header_rels_xml = zip.read("word/_rels/header1.xml.rels")
-          header_rels = Nokogiri::XML(@header_rels_xml)
-          relations_number = header_rels.children[0].children.collect {
-            |child| child["name"] == "Relationship" }.size
-          dict = { "Id" => "rId#{relations_number+1}",
-              "Type" => "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
-              "Target" => "TOKEN_URL",
-              "TargetMode" => "External"}
-          header_rels.children[0].add_child("<Relationship
-            Id = \"rId#{relations_number+1}\"
-            Type = \"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\"
-            Target = \"TOKEN_URL\"
-            TargetMode = \"External\"
-            />")
-          @header_rels_xml = header_rels.to_xml
+          relations_number = insert_header_rels
           insert_partial(relations_number + 1)
         end
       else
@@ -66,8 +49,25 @@ module Honeydocx
         content_types_patch.root.children.each { |child| @content_types.root.add_child(child) }
         # Hack remove the default namespace from the newly added nodes
         @content_types.root.children.each { |child| child.namespace = nil }
-        binding.pry
         @content_types = @content_types.to_xml
+
+        # Get the header rId
+        @doc_rels = Nokogiri::XML(zip.read('word/_rels/document.xml.rels'))
+        current_rid = doc_rels.children[0].children.collect {
+            |child| child["name"] == "Relationship" }.size + 1
+        # TODO are end and foot notes really needed? Leave til later & test
+        rids = { 'header1.xml' => current_rid, 'endnotes.xml' => current_rid + 1,
+          'footnotes.xml' => current_rid + 2 }
+        # Insert into doc_rels
+        @doc_rels.root.add_child("<Relationship Id=\"rId#{rids['header1.xml']}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/header\" Target=\"header1.xml\"/>")
+        @doc_rels = @doc_rels.to_xml
+
+        @header_rels_xml = template_header_rels
+        files_to_add['word/_rels/header1.xml.rels'] = @header_rels_xml
+        #Insert into document.xml
+        doc = Nokogiri::XML(zip.read('word/document.xml'))
+        doc.at_xpath(".//w:sectPr").prepend_child("<w:headerReference w:type=\"default\" r:id=\"rId#{rids['header1.xml']}\"/>")
+        @doc = doc.to_xml
       end
       @header_rels_xml.gsub!("TOKEN_URL", url + token)
     end
@@ -76,12 +76,16 @@ module Honeydocx
       Zip::OutputStream.open(save_path) do |out|
         zip.each do |entry|
           out.put_next_entry(entry.name)
-          if entry.name == "word/_rels/header1.xml.rels"
+          if (entry.name == "word/_rels/header1.xml.rels")
             out.write(header_rels_xml)
           elsif (entry.name == "word/header1.xml")
             out.write(header_xml)
-          elsif (entry.name == "[Content_Types].xml")
+          elsif (entry.name == "[Content_Types].xml" && content_types)
             out.write(content_types)
+          elsif (entry.name == "word/_rels/document.xml.rels" && doc_rels)
+            out.write(doc_rels)
+          elsif (entry.name == "word/document.xml" && doc)
+            out.write(doc)
           elsif (entry.file?)
             out.write(zip.read(entry.name))
           end
@@ -129,6 +133,28 @@ module Honeydocx
       end
       header_xml.at_xpath(".//w:p") << partial.children[0].children.to_xml
       @header_xml = header_xml.to_xml
+    end
+
+    def insert_header_rels
+      # Get last relationship number (rid)
+      # Add relationship with last rid + 1
+      # Edit partial to include rid
+      @header_rels_xml = zip.read("word/_rels/header1.xml.rels")
+      header_rels = Nokogiri::XML(@header_rels_xml)
+      relations_number = header_rels.children[0].children.collect {
+        |child| child["name"] == "Relationship" }.size
+      dict = { "Id" => "rId#{relations_number+1}",
+          "Type" => "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+          "Target" => "TOKEN_URL",
+          "TargetMode" => "External"}
+      header_rels.children[0].add_child("<Relationship
+        Id = \"rId#{relations_number+1}\"
+        Type = \"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\"
+        Target = \"TOKEN_URL\"
+        TargetMode = \"External\"
+        />")
+      @header_rels_xml = header_rels.to_xml
+      relations_number
     end
 
     def new_document?

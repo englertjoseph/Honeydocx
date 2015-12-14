@@ -96,7 +96,19 @@ describe Honeydocx::WordXML do
 
       it 'should register header in [CONTENT_TYPES].xml' do
         header = "<Override PartName=\"/word/header1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml\"/>"
-        expect(open_xml('[Content_Types].xml', @save_path)).to include(header)
+        expect(clean_xml(open_xml('[Content_Types].xml', @save_path))).to include(clean_xml(header))
+      end
+
+      it 'should add entry to header in word/_rels/document.xml.rels'do
+        entry = '<Relationship Id="rId7" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>'
+        document_rels = open_xml('word/_rels/document.xml.rels', @save_path)
+        expect(clean_xml(document_rels)).to include(clean_xml(entry))
+      end
+
+      it 'should add header realtionship in document,xml' do
+        expected_document = File.open(File.expand_path('../../fixtures/document.xml', __FILE__)).read
+        document = open_xml('word/document.xml', @save_path)
+        expect(clean_xml(document)).to eq(clean_xml(expected_document))
       end
     end
 
