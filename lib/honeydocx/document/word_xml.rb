@@ -1,8 +1,11 @@
 require 'zip'
 require 'nokogiri'
+require_relative 'word/header'
+require_relative 'word/word_helper'
 
 module Honeydocx
   class WordXML
+    include WordHelper
 
     @@Fixtures_path = File.expand_path("../word_fixtures" , __FILE__)
     @@Blank_path = File.expand_path('blank.docx', @@Fixtures_path)
@@ -18,6 +21,7 @@ module Honeydocx
       @save_path = "#{Dir.pwd}/tmp/#{token}.docx"
       @files_to_add = {}
       open_docx
+      binding.pry
       add_honey
       save
     end
@@ -97,11 +101,17 @@ module Honeydocx
         if (!has_file?(filename))
           Zip::File.open(save_path, Zip::File::CREATE) do |zipfile|
             zipfile.get_output_stream(filename) do |f|
+              ##TODO change so this is the only save.. overwite files if they
+              #exist perhaps by setting f to ""?
               f.puts(data)
             end
           end
         end
       end
+    end
+
+    def add_file_to_zip(filename, data)
+      files_to_add[filename] = data
     end
 
     def self.blank_path
