@@ -1,23 +1,11 @@
-
-
 module Honeydocx
   module Document
-    def create(type, opts={})
-      if type == :pdf
-        return PDF.new(opts)
-      elsif type == :docx
+    def create(format, opts={})
+      if format == :docx
         return WordXML.new(opts)
-      elsif type == :xlsx
-        return ExcelXML.new(opts)
+      else
+        raise(UnknownFormatError, format)
       end
-    end
-
-    def add_honey
-
-    end
-
-    def save!
-      fail
     end
 
     def self.accepted_formats
@@ -38,5 +26,3 @@ module Honeydocx
 end
 
 require_relative 'word_xml'
-require_relative 'excel_xml'
-require_relative 'pdf'

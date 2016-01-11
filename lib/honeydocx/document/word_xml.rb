@@ -4,8 +4,9 @@ require 'nokogiri'
 module Honeydocx
   class WordXML
 
-    @@BLANK_PATH = File.expand_path("../word/blank.docx", __FILE__)
-    @@HONEY_RELS_HEADER_PATH = File.expand_path("../word/header1.xml.rels", __FILE__)
+    @@Fixtures_path = File.expand_path("../word_fixtures" , __FILE__)
+    @@Blank_path = File.expand_path('blank.docx', @@Fixtures_path)
+    @@Honey_rels_header_path = File.expand_path('header1.xml.rels', @@Fixtures_path)
 
     attr_reader :path, :zip, :header, :url, :save_path, :token
     attr_accessor :header_rels_xml, :header_xml, :files_to_add, :content_types, :doc_rels, :doc
@@ -39,11 +40,11 @@ module Honeydocx
       else
         # Add headers to the document
         # Create header
-        @header_xml = File.open(File.expand_path('../word/header1.xml', __FILE__)).read
+        @header_xml = File.open(File.expand_path('../word_fixtures/header1.xml', __FILE__)).read
         files_to_add['word/header1.xml'] = @header_xml
         @header_rels_xml = template_header_rels
         # Add entry to [CONTENT_TYPES].xml
-        content_types_patch_file = File.open(File.expand_path('../word/[Content_Types].xml.patch', __FILE__)).read
+        content_types_patch_file = File.open(File.expand_path('../word_fixtures/[Content_Types].xml.patch', __FILE__)).read
         content_types_patch = Nokogiri::XML(content_types_patch_file)
         @content_types = Nokogiri::XML(zip.read('[Content_Types].xml'))
         content_types_patch.root.children.each { |child| @content_types.root.add_child(child) }
@@ -104,11 +105,11 @@ module Honeydocx
     end
 
     def self.blank_path
-      @@BLANK_PATH
+      @@Blank_path
     end
 
-    def self.honey_header_path
-      @@HONEY_RELS_HEADER_PATH
+    def self.honey_header_rels_path
+      @@Honey_rels_header_path
     end
 
     private
@@ -117,19 +118,27 @@ module Honeydocx
       @zip = Zip::File.open(path)
     end
 
+    def open_fixture(filename)
+      File.open(fixture_file(filename))
+    end
+
+    def fixture_file(filename)
+      File.expand_path("../word_fixtures/#{filename}" , __FILE__)
+    end
+
     def template_header_rels
-      File.open(WordXML.honey_header_path).read
+      File.open(WordXML.honey_header_rels_path).read
     end
 
     def insert_partial(rId = 1)
       # Insert hook into word/header1.xml
-      partial = Nokogiri::XML(File.open(File.expand_path("../word/header1.xml.partial" , __FILE__)))
+      partial = Nokogiri::XML(open_fixture('header1.xml.partial'))
       image_data = partial.at_xpath(".//v:imagedata")
       image_data["r:id"] = "rId#{rId}"
       header_xml =  Nokogiri::XML(zip.read("word/header1.xml"))
       # Add header style if none exist
       if (header_xml.at_xpath(".//w:pPr").nil?)
-        partial << Nokogiri::XML(File.open(File.expand_path("../word/pPr.xml", __FILE__)))
+        partial << Nokogiri::XML(open_fixture('pPr.xml'))
       end
       header_xml.at_xpath(".//w:p") << partial.children[0].children.to_xml
       @header_xml = header_xml.to_xml
