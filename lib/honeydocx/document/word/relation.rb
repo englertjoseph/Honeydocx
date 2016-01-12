@@ -10,9 +10,9 @@ module Honeydocx
       @filename = filename
       @doc = doc
       if rels_exist?
-
+        @rels = open_xml(doc.zip.read(filename))
       else
-
+        @rels = open_xml(read_fixture(filename))
       end
     end
 
@@ -35,7 +35,7 @@ module Honeydocx
 
     def rels_exist?
       #Name for header = word/_rels/header1.xml.rels
-      doc.zip.entries.any? { |entry| entry.name == name }
+      doc.zip.entries.any? { |entry| entry.name == filename }
     end
 
     def next_rid
