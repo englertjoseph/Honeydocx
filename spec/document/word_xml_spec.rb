@@ -21,7 +21,7 @@ describe Honeydocx::WordXML do
 
       it 'should insert a token in the header rels' do
         expected_xml = File.open(File.expand_path('../../fixtures/header1.xml.rels', __FILE__)).read
-        expect(clean_xml(@wordXML.header_rels_xml)).to eq (clean_xml(expected_xml))
+        expect(clean_xml(get_header_rels(@save_path))).to eq (clean_xml(expected_xml))
       end
     end
 
@@ -39,7 +39,7 @@ describe Honeydocx::WordXML do
 
         it 'should create header rels with token' do
           expected_xml = File.open(File.expand_path('../../fixtures/header1.xml.rels', __FILE__)).read
-          expect(clean_xml(@wordXML.header_rels_xml)).to eq (clean_xml(expected_xml))
+          expect(clean_xml(get_header_rels(@save_path))).to eq (clean_xml(expected_xml))
         end
 
         it 'should create a header rels file' do
@@ -48,7 +48,7 @@ describe Honeydocx::WordXML do
         end
 
         it 'should reference token in word/header1.xml', focus: true do
-          expect(clean_xml(@wordXML.header_xml)).to eq (clean_xml(expected_header))
+          expect(clean_xml(get_header(@save_path))).to eq (clean_xml(expected_header))
         end
       end
 
@@ -65,14 +65,14 @@ describe Honeydocx::WordXML do
 
         it 'should insert a token in the header rels' do
           expected_xml = File.open(File.expand_path('../../fixtures/header1_with_rels.xml.rels', __FILE__)).read
-          expect(clean_xml(@wordXML.header_rels_xml)).to eq (clean_xml(expected_xml))
+          expect(clean_xml(get_header_rels(@save_path))).to eq (clean_xml(expected_xml))
         end
 
         it 'should retain the old rels' do
           old_rels = Nokogiri::XML(get_header_rels(@path))
           old_rels.remove_namespaces! # XML namespaces aren't correct and no searchable without removing
           old_rels.root.xpath(".//Relationship").each do |relation|
-            expect(@wordXML.header_rels_xml).to include(relation)
+            expect(get_header_rels(@save_path)).to include(relation)
           end
         end
       end

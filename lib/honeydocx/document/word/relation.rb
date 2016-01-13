@@ -4,7 +4,8 @@ module Honeydocx
   class Relation
     include WordHelper
 
-    attr_reader :filename, :doc, :rels
+    attr_reader :filename, :doc
+    attr_accessor :rels
     #Initially only for header rels
     def initialize(filename, doc)
       @filename = filename
@@ -16,15 +17,21 @@ module Honeydocx
       end
     end
 
-    def add_relation(type, target)
+    def add_honey(url, token)
+      #TODO need to escape url??
+      self.rels = open_xml(rels.to_xml.gsub('HONEY_TOKEN', url+token))
+      add_file_to_zip(filename, rels.to_xml)
+    end
+
+    def add_relation(type, target, target_mode=nil)
       rid = next_rid
       #could be problems if so try childrern[0].add_child
-      rels.root.add_child("<Relationship Id=\"rId#{rid}\" Type=\"#{type}\" Target=\"#{target}\"/>")
+      rels.root.add_child("<Relationship Id=\"rId#{rid}\" Type=\"#{type}\" Target=\"#{target}\" #{"TargetMode=\"#{target_mode}\"" if target_mode }/>")
       rid
     end
 
     def to_xml
-
+      @rels.to_xml
     end
 
     private
