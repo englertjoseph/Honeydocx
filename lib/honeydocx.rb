@@ -4,7 +4,7 @@ require 'honeydocx/document/document'
 
 module Honeydocx
   def self.create(type, opts={})
-    doc = Document.create(type, otps)
+    doc = Document.create(type, opts)
     doc.save!
   end
 
