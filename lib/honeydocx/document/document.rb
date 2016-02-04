@@ -1,6 +1,6 @@
 module Honeydocx
   module Document
-    def create(format, opts={})
+    def self.create(format, opts={})
       if format == :docx
         return WordXML.new(opts)
       else
