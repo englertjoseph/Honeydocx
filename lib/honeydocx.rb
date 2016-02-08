@@ -1,4 +1,3 @@
-require 'pry'
 require 'honeydocx/version'
 require 'honeydocx/document/document'
 
