@@ -14,7 +14,7 @@ module Honeydocx
       @header_rels = Relation.new('word/_rels/header1.xml.rels', doc)
     end
 
-    def add_honey(url, token)
+    def add_honey(url)
       # if header_exits?
       #   @header = open_xml(doc.zip.read("word/header1.xml"))
       #   edit_header
@@ -22,9 +22,9 @@ module Honeydocx
       #   add_header
       # end
       if (doc.new_document?)
-        header_rels.add_honey(url, token)
+        header_rels.add_honey(url)
       else
-        add_relations(url, token)
+        add_relations(url)
         edit_header
         patch_content_types
         add_file_to_zip('word/header1.xml', header.to_xml)
@@ -49,8 +49,8 @@ module Honeydocx
         reference_header_in_document
       end
 
-      def add_relations(url, token)
-        insert_into_header_rels(url+token)
+      def add_relations(url)
+        insert_into_header_rels(url)
       end
 
       def patch_content_types
@@ -91,11 +91,11 @@ module Honeydocx
         add_file_to_zip('word/document.xml', document.to_xml)
       end
 
-      def insert_into_header_rels(token)
+      def insert_into_header_rels(url)
         # Get last relationship number (rid)
         # Add relationship with last rid + 1
         # Edit partial to include rid
-        @header_rid = header_rels.add_relation('http://schemas.openxmlformats.org/officeDocument/2006/relationships/image', token, "External")
+        @header_rid = header_rels.add_relation('http://schemas.openxmlformats.org/officeDocument/2006/relationships/image', url, "External")
         add_file_to_zip('word/_rels/header1.xml.rels', header_rels.to_xml)
       end
   end

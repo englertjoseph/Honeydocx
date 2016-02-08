@@ -17,9 +17,9 @@ module Honeydocx
       end
     end
 
-    def add_honey(url, token)
+    def add_honey(url)
       #TODO need to escape url??
-      self.rels = open_xml(rels.to_xml.gsub('HONEY_TOKEN', "#{url}#{token}"))
+      self.rels = open_xml(rels.to_xml.gsub('HONEY_TOKEN', url))
       add_file_to_zip(filename, rels.to_xml)
     end
 

@@ -16,16 +16,15 @@ module Honeydocx
     def initialize(opts={})
       @path = opts.fetch(:path, WordXML.blank_path)
       @url = opts.fetch(:url)
-      @token = opts.fetch(:token)
       @save_path = opts.fetch(:save_path, "#{Dir.pwd}/tmp/#{token}.docx")
       @files_to_add = {}
       open_docx
       @header = Header.new(self)
-      add_honey(url, token)
+      add_honey(url)
     end
 
-    def add_honey(url, token)
-      header.add_honey(url, token)
+    def add_honey(url)
+      header.add_honey(url)
     end
 
     def save

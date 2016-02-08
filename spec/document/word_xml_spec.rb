@@ -4,14 +4,13 @@ describe Honeydocx::WordXML do
   #let(:Document) { Class.new { extend Honeydocx::Document } }
   describe '#new' do
     before(:each) do
-      @url = "http://localhost/"
-      @token = "dog.jpg"
+      @url = "http://localhost/dog.jpg"
       #@save_path = "#{Dir.pwd}/tmp/#{@token}.docx"
     end
 
     context 'using template document' do
       before(:each) do
-        @opts = { url: @url, token: @token }
+        @opts = { url: @url }
         @wordXML = Honeydocx::Document.create(:docx, @opts)
         @new_file = @wordXML.save
       end
@@ -30,7 +29,7 @@ describe Honeydocx::WordXML do
       context 'with no header rels' do
         before(:each) do
           @path = File.expand_path('../../fixtures/header_no_rels.docx', __FILE__)
-          @opts = { path: @path, url: @url, token: @token }
+          @opts = { path: @path, url: @url }
           @wordXML = Honeydocx::Document.create(:docx, @opts)
           @new_file = @wordXML.save
         end
@@ -57,7 +56,7 @@ describe Honeydocx::WordXML do
       context 'with header rels' do
         before(:each) do
           @path = File.expand_path('../../fixtures/header_with_rels.docx', __FILE__)
-          @opts = { path: @path, url: @url, token: @token }
+          @opts = { path: @path, url: @url }
           @wordXML = Honeydocx::Document.create(:docx, @opts)
           @new_file = @wordXML.save
         end
@@ -84,7 +83,7 @@ describe Honeydocx::WordXML do
     context 'Using supplied document with no header' do
       before(:each) do
         @path = File.expand_path('../../fixtures/blank_no_header.docx', __FILE__)
-        @opts = { path: @path, url: @url, token: @token }
+        @opts = { path: @path, url: @url }
         @wordXML = Honeydocx::Document.create(:docx, @opts)
         @new_file = @wordXML.save
       end
@@ -117,11 +116,7 @@ describe Honeydocx::WordXML do
     end
 
     it 'should throw exception if url not specified' do
-      expect { Honeydocx::Document.create(:docx, { token: @token }) }.to raise_error(KeyError)
-    end
-
-    it 'should throw exception if token not specified' do
-      expect { Honeydocx::Document.create(:docx, { url: @url }) }.to raise_error(KeyError)
+      expect { Honeydocx::Document.create(:docx, {}) }.to raise_error(KeyError)
     end
   end
 end
