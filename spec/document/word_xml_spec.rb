@@ -5,7 +5,6 @@ describe Honeydocx::WordXML do
   describe '#new' do
     before(:each) do
       @url = "http://localhost/dog.jpg"
-      #@save_path = "#{Dir.pwd}/tmp/#{@token}.docx"
     end
 
     context 'using template document' do

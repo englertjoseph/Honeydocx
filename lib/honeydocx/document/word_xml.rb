@@ -11,12 +11,11 @@ module Honeydocx
     @@Blank_path = File.expand_path('blank_template.docx', @@Fixtures_path)
     @@Honey_rels_header_path = File.expand_path('header1.xml.rels', @@Fixtures_path)
 
-    attr_reader :path, :zip, :header, :url, :save_path, :token, :files_to_add
+    attr_reader :path, :zip, :header, :url, :files_to_add
 
     def initialize(opts={})
       @path = opts.fetch(:path, WordXML.blank_path)
       @url = opts.fetch(:url)
-      @save_path = opts.fetch(:save_path, "#{Dir.pwd}/tmp/#{token}.docx")
       @files_to_add = {}
       open_docx
       @header = Header.new(self)
