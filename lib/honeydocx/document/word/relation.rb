@@ -10,22 +10,17 @@ module Honeydocx
     def initialize(filename, doc)
       @filename = filename
       @doc = doc
-      if rels_exist?
-        @rels = open_xml(doc.zip.read(filename))
-      else
-        @rels = open_xml(read_fixture(filename))
-      end
+      rels_file = rels_exist? ? doc.zip.read(filename) : read_fixture(filename)
+      @rels = open_xml(rels_file)
     end
 
     def add_honey(url)
-      #TODO need to escape url??
       self.rels = open_xml(rels.to_xml.gsub('HONEY_TOKEN', url))
       add_file_to_zip(filename, rels.to_xml)
     end
 
     def add_relation(type, target, target_mode=nil)
       rid = next_rid
-      #could be problems if so try childrern[0].add_child
       rels.root.add_child("<Relationship Id=\"rId#{rid}\" Type=\"#{type}\" Target=\"#{target}\" #{"TargetMode=\"#{target_mode}\"" if target_mode }/>")
       rid
     end

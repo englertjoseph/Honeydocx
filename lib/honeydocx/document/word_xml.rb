@@ -17,7 +17,7 @@ module Honeydocx
       @path = opts.fetch(:path, WordXML.blank_path)
       @url = opts.fetch(:url)
       @files_to_add = {}
-      open_docx
+      @zip = open_docx
       @header = Header.new(self)
       add_honey(url)
     end
@@ -26,10 +26,9 @@ module Honeydocx
       header.add_honey(url)
     end
 
-    def save
-      temp_file = Tempfile.new(['test', '.docx'])
-      Zip::OutputStream.open(temp_file) { |zos| }
-      Zip::OutputStream.open(temp_file) do |out|
+    def save(save_path)
+      # Create new word file
+      Zip::OutputStream.open(save_path) do |out|
         zip.each do |entry|
           out.put_next_entry(entry.name)
           if (entry.file?)
@@ -38,16 +37,12 @@ module Honeydocx
         end
       end
       zip.close
-      self.files_to_add.each do |filename, data|
-        Zip::File.open(temp_file, Zip::File::CREATE) do |zipfile|
-          zipfile.get_output_stream(filename) do |f|
-            ##TODO change so this is the only save.. overwite files if they
-            #exist perhaps by setting f to ""?
-            f.puts(data)
-          end
+      files_to_add.each do |filename, data|
+        Zip::File.open(save_path, Zip::File::CREATE) do |zipfile|
+          zipfile.get_output_stream(filename) { |f| f.puts(data) }
         end
       end
-      temp_file
+      save_path
     end
 
     def add_file_to_zip(filename, data)
@@ -65,7 +60,7 @@ module Honeydocx
     private
 
       def open_docx
-        @zip = Zip::File.open(path)
+        Zip::File.open(path)
       end
 
       def has_file?(filename)

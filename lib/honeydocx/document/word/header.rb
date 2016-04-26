@@ -15,12 +15,6 @@ module Honeydocx
     end
 
     def add_honey(url)
-      # if header_exits?
-      #   @header = open_xml(doc.zip.read("word/header1.xml"))
-      #   edit_header
-      # else
-      #   add_header
-      # end
       if (doc.new_document?)
         header_rels.add_honey(url)
       else
@@ -37,9 +31,7 @@ module Honeydocx
       end
 
       def edit_header
-        if !header_exists?
-          add_header
-        end
+        add_header if !header_exists?
         insert_partial(header_rid)
       end
 
@@ -70,7 +62,7 @@ module Honeydocx
         partial = Nokogiri::XML(read_fixture('header1.xml.partial'))
         image_data = partial.at_xpath(".//v:imagedata")
         image_data["r:id"] = "rId#{rId}"
-        header_xml =  header#Nokogiri::XML(doc.zip.read("word/header1.xml"))
+        header_xml =  header
         # Add header style if none exist
         if (header_xml.at_xpath(".//w:pPr").nil?)
           partial << Nokogiri::XML(read_fixture('pPr.xml'))

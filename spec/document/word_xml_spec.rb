@@ -5,13 +5,14 @@ describe Honeydocx::WordXML do
   describe '#new' do
     before(:each) do
       @url = "http://localhost/dog.jpg"
+      @save_path = "#{Dir.pwd}/tmp/test.docx"
     end
 
     context 'using template document' do
       before(:each) do
         @opts = { url: @url }
         @wordXML = Honeydocx::Document.create(:docx, @opts)
-        @new_file = @wordXML.save
+        @new_file = File.open(@wordXML.save(@save_path))
       end
 
       it 'should set path to template document if no path specified' do
@@ -30,7 +31,7 @@ describe Honeydocx::WordXML do
           @path = File.expand_path('../../fixtures/header_no_rels.docx', __FILE__)
           @opts = { path: @path, url: @url }
           @wordXML = Honeydocx::Document.create(:docx, @opts)
-          @new_file = @wordXML.save
+          @new_file = File.open(@wordXML.save(@save_path))
         end
 
         it 'should set the path of the document' do
@@ -57,7 +58,7 @@ describe Honeydocx::WordXML do
           @path = File.expand_path('../../fixtures/header_with_rels.docx', __FILE__)
           @opts = { path: @path, url: @url }
           @wordXML = Honeydocx::Document.create(:docx, @opts)
-          @new_file = @wordXML.save
+          @new_file = File.open(@wordXML.save(@save_path))
         end
 
         it 'should set the path of the document' do
@@ -84,7 +85,7 @@ describe Honeydocx::WordXML do
         @path = File.expand_path('../../fixtures/blank_no_header.docx', __FILE__)
         @opts = { path: @path, url: @url }
         @wordXML = Honeydocx::Document.create(:docx, @opts)
-        @new_file = @wordXML.save
+        @new_file = File.open(@wordXML.save(@save_path))
       end
 
       it 'should set the path of the document' do
