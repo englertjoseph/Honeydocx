@@ -1,8 +1,12 @@
 # Honeydocx
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/honeydocx`. To experiment with that code, run `bin/console` for an interactive prompt.
+Honeydocx allows you to insert an "invisible" image (1px by 1px) into a document,
+when opened the image is fetched the specified url, allowing the user agent and IP
+to be collected.
 
-TODO: Delete this and the text above, and describe your gem
+I had plans to extend this to include .pdf, .xlsx and .pptx files and run as an online service. However since all external content is now blocked by default in MS Office 
+(An ADS is written to the file by the browser when downloaded) those plans have 
+been abandoned.
 
 ## Installation
 
@@ -21,14 +25,17 @@ Or install it yourself as:
     $ gem install honeydocx
 
 ## Usage
+### Create a new document with beacon
+```ruby
+opts = { url: "http://example.com/image.jpeg", save_path: "beacon.docx" }
+Honeydocx::Document.create(:docx, opts)
+```
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+### Add a beacon to an existing document
+```ruby
+opts = { url: "http://example.com/image.jpeg", path: "file.docx", save_path: "beacon.docx" }
+Honeydocx::Document.create(:docx, opts)
+```
 
 ## License
 
