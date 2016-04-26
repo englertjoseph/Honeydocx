@@ -1,6 +1,5 @@
 require 'honeydocx/version'
 require 'honeydocx/document/document'
-require 'pry'
 
 module Honeydocx
   def self.create(type, opts={})
