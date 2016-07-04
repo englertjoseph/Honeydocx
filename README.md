@@ -8,22 +8,6 @@ I had plans to extend this to include .pdf, .xlsx and .pptx files and run as an 
 (An ADS is written to the file by the browser when downloaded) those plans have 
 been abandoned.
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'honeydocx'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install honeydocx
-
 ## Usage
 ### Create a new document with beacon
 ```ruby
